@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Box from "@mui/system/Box";
 import Button from "@mui/material/Button";
-// import { useWeb3 } from "../providers/web3";
+import { useWeb3 } from "../providers/web3";
 
 const styles = {
   wrapper: {
@@ -35,13 +35,11 @@ const styles = {
 };
 
 const Navbar = () => {
-  // const { isConnected, connectWallet, address } = useWeb3();
+  const { isConnected, connectWallet, address } = useWeb3();
 
-  // const handleConnect = async () => {
-  //   if (!isConnected) await connectWallet();
-
-  //   console.log(address);
-  // };
+  const handleConnect = async () => {
+    if (!isConnected) await connectWallet();
+  };
 
   return (
     <Box sx={styles.wrapper}>
@@ -59,11 +57,10 @@ const Navbar = () => {
       </Box>
       <Button
         variant="contained"
-        // onClick={handleConnect}
+        onClick={handleConnect}
         sx={styles.connectButton}
       >
-        {/* {isConnected ? "connected" : "Connect to Metamask"} */}
-        Connect to Metamask
+        {isConnected ? "connected" : "Connect to Metamask"}
       </Button>
     </Box>
   );
