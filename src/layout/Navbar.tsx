@@ -1,10 +1,10 @@
-"use client";
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Box from "@mui/system/Box";
-import Button from "@mui/material/Button";
+
+import Button from "../components/Button";
+import SwitchToGoerliModal from "../modals/SwitchToGoerliModal";
 import { useWeb3 } from "../providers/web3";
 
 const styles = {
@@ -35,34 +35,45 @@ const styles = {
 };
 
 const Navbar = () => {
-  const { isConnected, connectWallet, address } = useWeb3();
+  const [showSwitchGoerliModal, setshowSwitchGoerliModal] = useState(false);
+  const { isConnected, isGoerli, switchToGoerli, connectWallet, disconnect } =
+    useWeb3();
 
   const handleConnect = async () => {
     if (!isConnected) await connectWallet();
   };
 
+  useEffect(() => {
+    setshowSwitchGoerliModal(isConnected && !isGoerli);
+  }, [isConnected, isGoerli]);
+
   return (
-    <Box sx={styles.wrapper}>
-      <Box sx={styles.logoWrapper}>
-        <Link href="/" passHref>
-          <Image
-            src="/images/ratherlabs-logo.png"
-            alt="main-logo"
-            style={{ objectFit: "contain" }}
-            width={260}
-            height={140}
-            priority
-          />
-        </Link>
+    <>
+      <Box sx={styles.wrapper}>
+        <Box sx={styles.logoWrapper}>
+          <Link href="/" passHref>
+            <Image
+              src="/images/ratherlabs-logo.png"
+              alt="main-logo"
+              style={{ objectFit: "contain" }}
+              width={260}
+              height={140}
+              priority
+            />
+          </Link>
+        </Box>
+        <Button
+          label={isConnected ? "disconnect" : "Connect to Metamask"}
+          onClick={isConnected ? disconnect : handleConnect}
+          style={styles.connectButton}
+        />
       </Box>
-      <Button
-        variant="contained"
-        onClick={handleConnect}
-        sx={styles.connectButton}
-      >
-        {isConnected ? "connected" : "Connect to Metamask"}
-      </Button>
-    </Box>
+      <SwitchToGoerliModal
+        isOpen={showSwitchGoerliModal}
+        onClose={() => setshowSwitchGoerliModal(false)}
+        switchToGoerli={switchToGoerli}
+      />
+    </>
   );
 };
 

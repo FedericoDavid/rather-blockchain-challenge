@@ -12,22 +12,31 @@ export const Web3Context = createContext({
   signer: null as JsonRpcSigner | null,
   address: null as string | null,
   isConnected: false,
+  isGoerli: false,
   connectWallet: async () => {},
   disconnect: () => {},
+  switchToGoerli: async () => {},
 });
 
 export const useWeb3 = () => useContext(Web3Context);
 
+const getEthersProvider = () => {
+  if (typeof window.ethereum !== "undefined") {
+    return new ethers.BrowserProvider(window.ethereum);
+  }
+  return null;
+};
+
 export const Web3Provider = ({ children }: { children: ReactNode }) => {
+  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [isGoerli, setIsGoerli] = useState<boolean>(false);
   const [provider, setProvider] = useState(null as BrowserProvider | null);
   const [signer, setSigner] = useState(null as JsonRpcSigner | null);
   const [address, setAddress] = useState(null as string | null);
-  const [isConnected, setIsConnected] = useState(false);
 
   const connectWallet = async () => {
-    if (typeof window.ethereum !== "undefined") {
-      const ethersProvider = new ethers.BrowserProvider(window.ethereum);
-
+    const ethersProvider = getEthersProvider();
+    if (ethersProvider) {
       await window.ethereum.request({ method: "eth_requestAccounts" });
 
       const ethersSigner = await ethersProvider.getSigner();
@@ -37,7 +46,10 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       setSigner(ethersSigner);
       setAddress(gotAddress);
       setIsConnected(true);
+
       localStorage.setItem("isConnected", "true");
+
+      await checkNetwork();
     }
   };
 
@@ -49,10 +61,26 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem("isConnected");
   };
 
+  const checkNetwork = async () => {
+    const ethersProvider = getEthersProvider();
+
+    if (ethersProvider) {
+      const network = await ethersProvider.getNetwork();
+      setIsGoerli(Number(network.chainId) === 5);
+    }
+  };
+
+  const switchToGoerli = async () => {
+    await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x5" }],
+    });
+  };
+
   useEffect(() => {
     if (localStorage.getItem("isConnected")) connectWallet();
 
-    window.ethereum?.on("accountsChanged", (accounts: any) => {
+    window.ethereum?.on("accountsChanged", (accounts: string[]) => {
       if (accounts.length > 0) {
         connectWallet();
       } else {
@@ -60,13 +88,9 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       }
     });
 
-    window.ethereum?.on("chainChanged", () => {
-      window.location.reload();
-    });
+    window.ethereum?.on("chainChanged", () => window.location.reload());
 
-    return () => {
-      window.ethereum?.removeAllListeners();
-    };
+    return () => window.ethereum?.removeAllListeners();
   }, []);
 
   return (
@@ -76,8 +100,10 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
         signer,
         address,
         isConnected,
+        isGoerli,
         connectWallet,
         disconnect,
+        switchToGoerli,
       }}
     >
       {children}
