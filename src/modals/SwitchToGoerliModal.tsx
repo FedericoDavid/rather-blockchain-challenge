@@ -3,11 +3,13 @@ import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "../components/Button";
+import Image from "next/image";
+import Alert from "@mui/material/Alert";
+import { useWeb3 } from "../providers/web3";
 
 interface SwitchToGoerliModalProps {
   isOpen: boolean;
   onClose: () => void;
-  switchToGoerli: () => void;
 }
 
 const style = {
@@ -16,19 +18,31 @@ const style = {
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
+    justifyContent: "center",
     width: 400,
     bgcolor: "background.paper",
-    border: "2px solid #000",
+    borderRadius: 8,
+    border: "1px solid #000",
+    backgroundColor: "#27262C",
     boxShadow: 24,
-    p: 4,
+    padding: "32px",
+  },
+  imageWrapper: {
+    display: "flex",
+    justifyContent: "center",
+    my: "12px",
+  },
+  buttonStyle: {
+    marginTop: "16px",
+    width: "100%",
   },
 };
 
 const SwitchToGoerliModal: React.FC<SwitchToGoerliModalProps> = ({
   isOpen,
   onClose,
-  switchToGoerli,
 }) => {
+  const { switchToGoerli, disconnect } = useWeb3();
   return (
     <div>
       <Modal
@@ -40,16 +54,37 @@ const SwitchToGoerliModal: React.FC<SwitchToGoerliModalProps> = ({
         <Box sx={style.wrapper}>
           <Typography
             id="modal-modal-title"
-            variant="h6"
+            variant="h5"
+            fontWeight={700}
             component="h2"
-            color="black"
+            color="white"
           >
-            Text in a modal
+            Check your network
           </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }} color="black">
-            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-          </Typography>
-          <Button label="Switch to goerli" onClick={switchToGoerli} />
+
+          <Box sx={style.imageWrapper}>
+            <Image
+              src="/images/check-your-network.webp"
+              alt="network-logo"
+              style={{ objectFit: "contain" }}
+              width={460}
+              height={180}
+              priority
+            />
+          </Box>
+          <Alert severity="warning">
+            Please switch your network to continue.
+          </Alert>
+          <Button
+            label="Switch network"
+            onClick={switchToGoerli}
+            style={style.buttonStyle}
+          />
+          <Button
+            label="Disconnect wallet"
+            onClick={disconnect}
+            style={style.buttonStyle}
+          />
         </Box>
       </Modal>
     </div>

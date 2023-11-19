@@ -36,8 +36,7 @@ const styles = {
 
 const Navbar = () => {
   const [showSwitchGoerliModal, setshowSwitchGoerliModal] = useState(false);
-  const { isConnected, isGoerli, switchToGoerli, connectWallet, disconnect } =
-    useWeb3();
+  const { isConnected, isGoerli, connectWallet, disconnect } = useWeb3();
 
   const handleConnect = async () => {
     if (!isConnected) await connectWallet();
@@ -71,7 +70,6 @@ const Navbar = () => {
       <SwitchToGoerliModal
         isOpen={showSwitchGoerliModal}
         onClose={() => setshowSwitchGoerliModal(false)}
-        switchToGoerli={switchToGoerli}
       />
     </>
   );
