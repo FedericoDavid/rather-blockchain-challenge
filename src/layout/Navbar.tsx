@@ -62,7 +62,7 @@ const Navbar = () => {
           </Link>
         </Box>
         <Button
-          label={isConnected ? "disconnect" : "Connect to Metamask"}
+          label={isConnected ? "Disconnect" : "Connect to Metamask"}
           onClick={isConnected ? disconnect : handleConnect}
           style={styles.connectButton}
         />

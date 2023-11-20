@@ -35,6 +35,8 @@ const style = {
   buttonStyle: {
     marginTop: "16px",
     width: "100%",
+    fontWeight: 700,
+    textTransform: "capitalize",
   },
 };
 
@@ -82,6 +84,7 @@ const SwitchToGoerliModal: React.FC<SwitchToGoerliModalProps> = ({
           />
           <Button
             label="Disconnect wallet"
+            variant="outlined"
             onClick={disconnect}
             style={style.buttonStyle}
           />
