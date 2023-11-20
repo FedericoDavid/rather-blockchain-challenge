@@ -14,11 +14,11 @@ const styles = {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    height: "92px",
+    height: "108px",
     width: "100vw",
     zIndex: 9,
     padding: 0,
-    borderBottom: "1px solid #c1c1c1",
+    borderBottom: "1px solid #FFB87D",
     backgroundColor: "transparent",
   },
   logoWrapper: {
@@ -59,7 +59,7 @@ const Navbar = () => {
         <Box sx={styles.logoWrapper}>
           <Link href="/" passHref>
             <Image
-              src="/images/ratherlabs-logo.png"
+              src="/images/logo.png"
               alt="main-logo"
               style={{ objectFit: "contain" }}
               width={260}
@@ -78,7 +78,7 @@ const Navbar = () => {
               color="white"
               paddingRight="12px"
             >
-              Quiz balance: ${quizBalance}
+              Quiz balance: ${quizBalance || 0}
             </Typography>
           )}
 
