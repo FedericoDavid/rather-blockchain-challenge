@@ -115,11 +115,11 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && isGoerli) {
       fetchQuizBalance();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isConnected, address, provider]);
+  }, [isConnected, isGoerli, address, provider]);
 
   return (
     <Web3Context.Provider
