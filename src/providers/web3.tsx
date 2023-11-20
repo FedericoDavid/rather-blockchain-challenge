@@ -5,12 +5,21 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { BrowserProvider, JsonRpcSigner, ethers } from "ethers";
+import {
+  BrowserProvider,
+  JsonRpcSigner,
+  Contract,
+  ethers,
+  formatUnits,
+} from "ethers";
+import { quizAddress } from "../blockchain/contract/quizAddres";
+import { quizAbi } from "../blockchain/contract/quizAbi";
 
 export const Web3Context = createContext({
   provider: null as BrowserProvider | null,
   signer: null as JsonRpcSigner | null,
-  address: null as string | null,
+  address: "",
+  quizBalance: "",
   isConnected: false,
   isGoerli: false,
   connectWallet: async () => {},
@@ -32,7 +41,8 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
   const [isGoerli, setIsGoerli] = useState<boolean>(false);
   const [provider, setProvider] = useState(null as BrowserProvider | null);
   const [signer, setSigner] = useState(null as JsonRpcSigner | null);
-  const [address, setAddress] = useState(null as string | null);
+  const [address, setAddress] = useState<string>("");
+  const [quizBalance, setQuizBalance] = useState<string>("");
 
   const connectWallet = async () => {
     const ethersProvider = getEthersProvider();
@@ -56,9 +66,19 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
   const disconnect = () => {
     setProvider(null);
     setSigner(null);
-    setAddress(null);
+    setAddress("");
+    setQuizBalance("");
     setIsConnected(false);
     localStorage.removeItem("isConnected");
+  };
+
+  const fetchQuizBalance = async () => {
+    if (provider && address) {
+      const tokenContract = new Contract(quizAddress, quizAbi, provider);
+      const balance = await tokenContract.balanceOf(address);
+
+      setQuizBalance(formatUnits(balance, "ether"));
+    }
   };
 
   const checkNetwork = async () => {
@@ -91,7 +111,15 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     window.ethereum?.on("chainChanged", () => window.location.reload());
 
     return () => window.ethereum?.removeAllListeners();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (isConnected) {
+      fetchQuizBalance();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isConnected, address, provider]);
 
   return (
     <Web3Context.Provider
@@ -99,6 +127,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
         provider,
         signer,
         address,
+        quizBalance,
         isConnected,
         isGoerli,
         connectWallet,
