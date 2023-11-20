@@ -45,6 +45,7 @@ const SwitchToGoerliModal: React.FC<SwitchToGoerliModalProps> = ({
   onClose,
 }) => {
   const { switchToGoerli, disconnect } = useWeb3();
+
   return (
     <div>
       <Modal
@@ -74,6 +75,7 @@ const SwitchToGoerliModal: React.FC<SwitchToGoerliModalProps> = ({
               priority
             />
           </Box>
+
           <Alert severity="warning">
             Please switch your network to continue.
           </Alert>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Box from "@mui/system/Box";
+import Typography from "@mui/material/Typography";
 
 import Button from "../components/Button";
 import SwitchToGoerliModal from "../modals/SwitchToGoerliModal";
@@ -13,7 +14,7 @@ const styles = {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    height: "120px",
+    height: "92px",
     width: "100vw",
     zIndex: 9,
     padding: 0,
@@ -28,6 +29,11 @@ const styles = {
     padding: 0,
     margin: 0,
   },
+  connectionWrapper: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+  },
   connectButton: {
     marginRight: "32px",
     boxShadow: "0px 8px 15px rgba(0, 0, 0, 0.1)",
@@ -36,7 +42,8 @@ const styles = {
 
 const Navbar = () => {
   const [showSwitchGoerliModal, setshowSwitchGoerliModal] = useState(false);
-  const { isConnected, isGoerli, connectWallet, disconnect } = useWeb3();
+  const { quizBalance, isConnected, isGoerli, connectWallet, disconnect } =
+    useWeb3();
 
   const handleConnect = async () => {
     if (!isConnected) await connectWallet();
@@ -61,11 +68,26 @@ const Navbar = () => {
             />
           </Link>
         </Box>
-        <Button
-          label={isConnected ? "Disconnect" : "Connect to Metamask"}
-          onClick={isConnected ? disconnect : handleConnect}
-          style={styles.connectButton}
-        />
+        <Box sx={styles.connectionWrapper}>
+          {isConnected && (
+            <Typography
+              id="modal-modal-title"
+              variant="body1"
+              fontWeight={700}
+              component="h4"
+              color="white"
+              paddingRight="12px"
+            >
+              Quiz balance: ${quizBalance}
+            </Typography>
+          )}
+
+          <Button
+            label={isConnected ? "Disconnect" : "Connect to Metamask"}
+            onClick={isConnected ? disconnect : handleConnect}
+            style={styles.connectButton}
+          />
+        </Box>
       </Box>
       <SwitchToGoerliModal
         isOpen={showSwitchGoerliModal}
