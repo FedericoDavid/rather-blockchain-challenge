@@ -4,6 +4,7 @@ import Button from "../../components/Button";
 import { Survey } from "../../types/survey";
 import SurveyModal from "../../modals/SurveyModal";
 import { useState } from "react";
+import { useWeb3 } from "../../providers/web3";
 
 interface HomeContainerProps {
   survey: Survey;
@@ -29,6 +30,12 @@ const styles = {
 
 const HomeContainer: React.FC<HomeContainerProps> = ({ survey }) => {
   const [showSurveyModal, setshowSurveyModal] = useState<boolean>(false);
+
+  const { submit } = useWeb3();
+
+  const onSendSurvey = async (surveyId: number, answersIds: number[]) => {
+    await submit(surveyId, answersIds);
+  };
 
   return (
     <>
@@ -61,6 +68,7 @@ const HomeContainer: React.FC<HomeContainerProps> = ({ survey }) => {
       <SurveyModal
         survey={survey}
         isOpen={showSurveyModal}
+        sendSurvey={onSendSurvey}
         onClose={() => setshowSurveyModal(false)}
       />
     </>

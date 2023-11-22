@@ -12,6 +12,7 @@ export type SurveyQuestion = {
 export type Survey = {
   title: string;
   image: string;
+  id: number;
   questions: SurveyQuestion[];
 };
 

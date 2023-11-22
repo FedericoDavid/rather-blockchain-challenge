@@ -5,7 +5,8 @@ import { SxProps, Theme } from "@mui/material/styles";
 interface ButtonProps {
   label: string;
   style?: SxProps<Theme>;
-  onClick: () => void;
+  onClick?: () => void;
+  type?: "button" | "reset" | "submit";
   variant?: "contained" | "text" | "outlined";
 }
 
@@ -14,9 +15,22 @@ const Button: React.FC<ButtonProps> = ({
   style,
   onClick,
   variant = "contained",
+  type = "button",
 }) => {
+  const defaultStyle = {
+    fontWeight: 600,
+    textTransform: "capitalize",
+  };
+
+  Object.assign(defaultStyle, style);
+
   return (
-    <MaterialButton variant={variant} onClick={onClick} sx={style}>
+    <MaterialButton
+      type={type}
+      variant={variant}
+      onClick={onClick}
+      sx={defaultStyle}
+    >
       {label}
     </MaterialButton>
   );

@@ -1,6 +1,7 @@
 {
   "title": "Sample Survey",
   "image": "https://hips.hearstapps.com/hmg-prod/images/quiz-questions-answers-1669651278.jpg",
+  "id": 12018,
   "questions": [
     {
       "text": "Question1",
@@ -30,7 +31,7 @@
           "text": "2 Opt2"
         },
         {
-          "text": "3 Opt3"
+          "text": "2 Opt3"
         }
       ]
     },

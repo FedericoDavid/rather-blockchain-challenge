@@ -1,55 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import {
-  Modal,
   Box,
   Typography,
   RadioGroup,
   FormControlLabel,
   Radio,
-  Button,
 } from "@mui/material";
 import Image from "next/image";
 import { Survey, SurveyAnswers, SurveyQuestion } from "../types/survey";
+import Modal from "../components/Modal";
+import Button from "../components/Button";
 
 interface SurveyModalProps {
   isOpen: boolean;
   onClose: () => void;
   survey: Survey;
+  sendSurvey: (surveyId: number, answersIds: number[]) => Promise<void>;
 }
-
-const style = {
-  wrapper: {
-    position: "absolute" as "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    justifyContent: "center",
-    width: 400,
-    bgcolor: "background.paper",
-    borderRadius: 8,
-    border: "1px solid #000",
-    backgroundColor: "#27262C",
-    boxShadow: 24,
-    padding: "32px",
-  },
-  imageWrapper: {
-    display: "flex",
-    justifyContent: "center",
-    my: "12px",
-  },
-  buttonStyle: {
-    marginTop: "16px",
-    width: "100%",
-    fontWeight: 700,
-    textTransform: "capitalize",
-  },
-};
 
 const SurveyModal: React.FC<SurveyModalProps> = ({
   isOpen,
-  onClose,
   survey,
+  onClose,
+  sendSurvey,
 }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [answers, setAnswers] = useState<SurveyAnswers>({});
@@ -100,6 +74,15 @@ const SurveyModal: React.FC<SurveyModalProps> = ({
     goToNextQuestion();
   };
 
+  const handleSendSurvey = () => {
+    const surveyId = survey.id;
+    const answersIds = Object.values(answers).map((answer) =>
+      parseInt(answer, 10)
+    );
+
+    sendSurvey(surveyId, answersIds);
+  };
+
   useEffect(() => {
     if (isOpen) {
       resetSurvey();
@@ -122,30 +105,51 @@ const SurveyModal: React.FC<SurveyModalProps> = ({
 
   const FinalSteps = () => (
     <Box>
-      <Typography variant="h6">Your answers:</Typography>
+      <Typography variant="h5" mb="12px">
+        Your answers:
+      </Typography>
       {survey.questions.map((q, index) => (
-        <Typography key={index}>
+        <Typography key={index} mb="12px">
           {q.text}: {answers[`question${index}`]}
         </Typography>
       ))}
-      <Button onClick={handleOnClose}>Close</Button>
+      <Button
+        onClick={handleSendSurvey}
+        label="Send survey!"
+        style={{ marginBottom: "8px", width: "100%" }}
+      />
+      <Button
+        variant="outlined"
+        onClick={handleOnClose}
+        label="Close"
+        style={{ width: "100%" }}
+      />
     </Box>
   );
 
   return (
-    <Modal open={isOpen} onClose={handleOnClose}>
-      <Box p={2} sx={style.wrapper}>
+    <Modal isOpen={isOpen} onClose={handleOnClose}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          textAlign: "center",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         {!showFinalStep ? (
           <>
-            <Typography variant="h6">
+            <Typography variant="h5">
               {question.text} - Time Left: {timeLeft}s
             </Typography>
             {question.image && (
               <Image
                 src={question.image}
                 alt="Question image"
-                width={260}
+                width={180}
                 height={140}
+                style={{ margin: "24px 0" }}
               />
             )}
             <form onSubmit={handleSubmit(handleQuestionResponse)}>
@@ -154,21 +158,30 @@ const SurveyModal: React.FC<SurveyModalProps> = ({
                 control={control}
                 defaultValue=""
                 render={({ field }: { field: any }) => (
-                  <RadioGroup {...field}>
+                  <RadioGroup
+                    {...field}
+                    sx={{
+                      flexDirection: "row",
+                      marginBottom: "16px",
+                    }}
+                  >
                     {question.options.map((option, index) => (
                       <FormControlLabel
                         key={index}
                         value={option.text}
-                        control={<Radio />}
+                        control={<Radio sx={{ marginRight: "6px" }} />}
                         label={option.text}
                       />
                     ))}
                   </RadioGroup>
                 )}
               />
-              <Button type="submit" variant="contained" color="primary">
-                Next
-              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                label="Next"
+                style={{ width: "100%" }}
+              />
             </form>
           </>
         ) : (

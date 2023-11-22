@@ -15,17 +15,33 @@ import {
 import { quizAddress } from "../blockchain/contract/quizAddres";
 import { quizAbi } from "../blockchain/contract/quizAbi";
 
-export const Web3Context = createContext({
-  provider: null as BrowserProvider | null,
-  signer: null as JsonRpcSigner | null,
+interface IWeb3Context {
+  provider: BrowserProvider | null;
+  signer: JsonRpcSigner | null;
+  address: string;
+  quizBalance: string;
+  isConnected: boolean;
+  isGoerli: boolean;
+  submit: (surveyId: number, answersIds: number[]) => Promise<void>;
+  connectWallet: () => Promise<void>;
+  disconnect: () => void;
+  switchToGoerli: () => Promise<void>;
+}
+
+const initialState: IWeb3Context = {
+  provider: null,
+  signer: null,
   address: "",
   quizBalance: "",
   isConnected: false,
   isGoerli: false,
+  submit: async () => {},
   connectWallet: async () => {},
   disconnect: () => {},
   switchToGoerli: async () => {},
-});
+};
+
+export const Web3Context = createContext<IWeb3Context>(initialState);
 
 export const useWeb3 = () => useContext(Web3Context);
 
@@ -97,6 +113,20 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const submit = async (surveyId: number, answersIds: number[]) => {
+    if (!signer) throw new Error("Wallet not connected");
+
+    const quizContract = new ethers.Contract(quizAddress, quizAbi, signer);
+
+    try {
+      const tx = await quizContract.submit(surveyId, answersIds);
+      await tx.wait();
+      console.log("Answers submitted: ", tx.hash);
+    } catch (error) {
+      console.error("Error submitting answers: ", error);
+    }
+  };
+
   useEffect(() => {
     if (localStorage.getItem("isConnected")) connectWallet();
 
@@ -130,6 +160,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
         quizBalance,
         isConnected,
         isGoerli,
+        submit,
         connectWallet,
         disconnect,
         switchToGoerli,
