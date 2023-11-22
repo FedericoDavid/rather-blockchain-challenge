@@ -17,12 +17,12 @@ import Modal from "../components/Modal";
 import Button from "../components/Button";
 import { useWeb3 } from "../providers/web3";
 
+type ModalSteps = "form" | "final" | "congrats" | "error";
+
 interface SurveyModalProps {
   isOpen: boolean;
-  surveyDone: boolean;
   onClose: () => void;
   survey: Survey;
-  sendSurvey: (surveyId: number, answersIds: number[]) => Promise<void>;
 }
 
 const styles = {
@@ -44,26 +44,26 @@ const styles = {
 const SurveyModal: React.FC<SurveyModalProps> = ({
   isOpen,
   survey,
-  surveyDone,
   onClose,
-  sendSurvey,
 }) => {
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+  const [isError, setIsError] = useState<boolean>(false);
   const [answers, setAnswers] = useState<SurveyAnswers>({});
+  const [modalStep, setModalStep] = useState<ModalSteps>("form");
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [timeLeft, setTimeLeft] = useState<number>(0);
-  const [showFinalStep, setShowFinalStep] = useState<boolean>(false);
 
-  const { isLoading, isError } = useWeb3();
+  const { isLoading, submit } = useWeb3();
   const { control, handleSubmit, reset } = useForm();
 
   const question: SurveyQuestion = survey.questions[currentQuestionIndex];
 
   const resetSurvey = () => {
     reset();
-    setShowFinalStep(false);
+    setModalStep("form");
     setAnswers({});
     setCurrentQuestionIndex(0);
     setTimeLeft(survey.questions[0]?.lifetimeSeconds || 0);
+    setIsError(false);
   };
 
   const handleOnClose = () => {
@@ -80,7 +80,7 @@ const SurveyModal: React.FC<SurveyModalProps> = ({
 
       reset();
     } else {
-      setShowFinalStep(true);
+      setModalStep("final");
     }
   };
 
@@ -98,13 +98,25 @@ const SurveyModal: React.FC<SurveyModalProps> = ({
     goToNextQuestion();
   };
 
-  const handleSendSurvey = () => {
+  const handleSendSurvey = async () => {
     const surveyId = survey.id;
     const answersIds = Object.values(answers).map((answer) =>
       parseInt(answer, 10)
     );
 
-    sendSurvey(surveyId, answersIds);
+    try {
+      const success = await submit(surveyId, answersIds);
+
+      console.log(success);
+
+      if (success) {
+        setModalStep("congrats");
+      } else {
+        setIsError(true);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   useEffect(() => {
@@ -118,12 +130,12 @@ const SurveyModal: React.FC<SurveyModalProps> = ({
       timer = setInterval(() => {
         setTimeLeft((prev) => prev - 1);
       }, 1000);
-    } else if (timeLeft === 0 && !showFinalStep) {
+    } else if (timeLeft === 0 && modalStep !== "final") {
       handleQuestionResponse();
     }
 
     return () => clearInterval(timer);
-  }, [timeLeft, isOpen, showFinalStep]);
+  }, [timeLeft, isOpen, modalStep]);
 
   const FinalStep: React.FC = () => (
     <Box>
@@ -137,7 +149,7 @@ const SurveyModal: React.FC<SurveyModalProps> = ({
       ))}
 
       {isLoading ? (
-        <Box sx={{ display: "flex", textAlign: "center" }}>
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
           <CircularProgress />
         </Box>
       ) : (
@@ -157,7 +169,7 @@ const SurveyModal: React.FC<SurveyModalProps> = ({
       )}
 
       {isError && (
-        <Alert severity="error">
+        <Alert severity="error" sx={{ marginTop: "12px" }}>
           Something went wrong. Please try again later.
         </Alert>
       )}
@@ -223,17 +235,20 @@ const SurveyModal: React.FC<SurveyModalProps> = ({
     </>
   );
 
-  const Content: React.FC = () => {
-    if (showFinalStep) return <FinalStep />;
-    if (surveyDone) return <CongratsStep />;
-    return <FormStep />;
+  const renderContent = () => {
+    switch (modalStep) {
+      case "final":
+        return <FinalStep />;
+      case "congrats":
+        return <CongratsStep />;
+      default:
+        return <FormStep />;
+    }
   };
 
   return (
     <Modal isOpen={isOpen} onClose={handleOnClose}>
-      <Box sx={styles.wrapper}>
-        <Content />
-      </Box>
+      <Box sx={styles.wrapper}>{renderContent()}</Box>
     </Modal>
   );
 };

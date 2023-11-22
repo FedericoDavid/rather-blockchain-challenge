@@ -30,18 +30,9 @@ const styles = {
 
 const HomeContainer: React.FC<HomeContainerProps> = ({ survey }) => {
   const [showSurveyModal, setshowSurveyModal] = useState<boolean>(false);
-  const [surveyDone, setSurveyDone] = useState<boolean>(false);
   const [disabled, setDisabled] = useState<boolean>(false);
 
-  const { submit, isConnected, isGoerli, connectWallet } = useWeb3();
-
-  const onSendSurvey = async (surveyId: number, answersIds: number[]) => {
-    try {
-      await submit(surveyId, answersIds).then(() => setSurveyDone(true));
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const { isConnected, isGoerli, connectWallet } = useWeb3();
 
   const onStartSurvey = async () => {
     if (!isConnected) {
@@ -96,8 +87,6 @@ const HomeContainer: React.FC<HomeContainerProps> = ({ survey }) => {
       <SurveyModal
         survey={survey}
         isOpen={showSurveyModal}
-        surveyDone={surveyDone}
-        sendSurvey={onSendSurvey}
         onClose={() => setshowSurveyModal(false)}
       />
     </>

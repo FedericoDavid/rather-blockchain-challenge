@@ -23,8 +23,7 @@ interface IWeb3Context {
   isConnected: boolean;
   isGoerli: boolean;
   isLoading: boolean;
-  isError: boolean;
-  submit: (surveyId: number, answersIds: number[]) => Promise<void>;
+  submit: (surveyId: number, answersIds: number[]) => Promise<boolean>;
   connectWallet: () => Promise<void>;
   disconnect: () => void;
   switchToGoerli: () => Promise<void>;
@@ -38,8 +37,7 @@ const initialState: IWeb3Context = {
   isConnected: false,
   isGoerli: false,
   isLoading: false,
-  isError: false,
-  submit: async () => {},
+  submit: async () => false,
   connectWallet: async () => {},
   disconnect: () => {},
   switchToGoerli: async () => {},
@@ -60,7 +58,6 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [isGoerli, setIsGoerli] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isError, setIsError] = useState<boolean>(false);
   const [provider, setProvider] = useState(null as BrowserProvider | null);
   const [signer, setSigner] = useState(null as JsonRpcSigner | null);
   const [address, setAddress] = useState<string>("");
@@ -121,8 +118,12 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     checkNetwork();
   };
 
-  const submit = async (surveyId: number, answersIds: number[]) => {
-    if (!signer) return;
+  const submit = async (
+    surveyId: number,
+    answersIds: number[]
+  ): Promise<boolean> => {
+    if (!signer) return false;
+
     setIsLoading(true);
 
     const quizContract = new ethers.Contract(quizAddress, quizAbi, signer);
@@ -134,11 +135,14 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       if (tx.hash) await fetchQuizBalance();
 
       setIsLoading(false);
+
+      return true;
     } catch (error) {
       console.error("Error submitting answers: ", error);
 
       setIsLoading(false);
-      setIsError(true);
+
+      return false;
     }
   };
 
@@ -176,7 +180,6 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
         isConnected,
         isGoerli,
         isLoading,
-        isError,
         submit,
         connectWallet,
         disconnect,
