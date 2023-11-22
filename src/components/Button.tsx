@@ -23,6 +23,9 @@ const Button: React.FC<ButtonProps> = ({
     fontWeight: 600,
     textTransform: "capitalize",
     boxShadow: "0px 8px 15px rgba(0, 0, 0, 0.1)",
+    color: "#fff",
+    borderColor: "#06D7D3",
+    backgroundColor: variant === "contained" ? "#06D7D3" : null,
   };
 
   Object.assign(defaultStyle, style);
