@@ -22,6 +22,8 @@ interface IWeb3Context {
   quizBalance: string;
   isConnected: boolean;
   isGoerli: boolean;
+  isLoading: boolean;
+  isError: boolean;
   submit: (surveyId: number, answersIds: number[]) => Promise<void>;
   connectWallet: () => Promise<void>;
   disconnect: () => void;
@@ -35,6 +37,8 @@ const initialState: IWeb3Context = {
   quizBalance: "",
   isConnected: false,
   isGoerli: false,
+  isLoading: false,
+  isError: false,
   submit: async () => {},
   connectWallet: async () => {},
   disconnect: () => {},
@@ -55,6 +59,8 @@ const getEthersProvider = () => {
 export const Web3Provider = ({ children }: { children: ReactNode }) => {
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [isGoerli, setIsGoerli] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isError, setIsError] = useState<boolean>(false);
   const [provider, setProvider] = useState(null as BrowserProvider | null);
   const [signer, setSigner] = useState(null as JsonRpcSigner | null);
   const [address, setAddress] = useState<string>("");
@@ -111,19 +117,28 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       method: "wallet_switchEthereumChain",
       params: [{ chainId: "0x5" }],
     });
+
+    checkNetwork();
   };
 
   const submit = async (surveyId: number, answersIds: number[]) => {
-    if (!signer) throw new Error("Wallet not connected");
+    if (!signer) return;
+    setIsLoading(true);
 
     const quizContract = new ethers.Contract(quizAddress, quizAbi, signer);
 
     try {
       const tx = await quizContract.submit(surveyId, answersIds);
       await tx.wait();
-      console.log("Answers submitted: ", tx.hash);
+
+      if (tx.hash) await fetchQuizBalance();
+
+      setIsLoading(false);
     } catch (error) {
       console.error("Error submitting answers: ", error);
+
+      setIsLoading(false);
+      setIsError(true);
     }
   };
 
@@ -160,6 +175,8 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
         quizBalance,
         isConnected,
         isGoerli,
+        isLoading,
+        isError,
         submit,
         connectWallet,
         disconnect,

@@ -1,9 +1,9 @@
+import { useEffect, useState } from "react";
 import { Container, Box, Typography, Card, CardContent } from "@mui/material";
 
 import Button from "../../components/Button";
 import { Survey } from "../../types/survey";
 import SurveyModal from "../../modals/SurveyModal";
-import { useState } from "react";
 import { useWeb3 } from "../../providers/web3";
 
 interface HomeContainerProps {
@@ -30,12 +30,36 @@ const styles = {
 
 const HomeContainer: React.FC<HomeContainerProps> = ({ survey }) => {
   const [showSurveyModal, setshowSurveyModal] = useState<boolean>(false);
+  const [surveyDone, setSurveyDone] = useState<boolean>(false);
+  const [disabled, setDisabled] = useState<boolean>(false);
 
-  const { submit } = useWeb3();
+  const { submit, isConnected, isGoerli, connectWallet } = useWeb3();
 
   const onSendSurvey = async (surveyId: number, answersIds: number[]) => {
-    await submit(surveyId, answersIds);
+    try {
+      await submit(surveyId, answersIds).then(() => setSurveyDone(true));
+    } catch (error) {
+      console.error(error);
+    }
   };
+
+  const onStartSurvey = async () => {
+    if (!isConnected) {
+      await connectWallet();
+      return;
+    }
+
+    if (!isGoerli) {
+      setDisabled(true);
+      return;
+    }
+
+    setshowSurveyModal(true);
+  };
+
+  useEffect(() => {
+    if (isGoerli) setDisabled(false);
+  }, [isGoerli]);
 
   return (
     <>
@@ -62,12 +86,17 @@ const HomeContainer: React.FC<HomeContainerProps> = ({ survey }) => {
           <Typography variant="h6" color="white" marginBottom="18px">
             Click on today&apos;s survey to begin!
           </Typography>
-          <Button label="Start now!" onClick={() => setshowSurveyModal(true)} />
+          <Button
+            label="Start now!"
+            onClick={onStartSurvey}
+            disabled={disabled}
+          />
         </Box>
       </Container>
       <SurveyModal
         survey={survey}
         isOpen={showSurveyModal}
+        surveyDone={surveyDone}
         sendSurvey={onSendSurvey}
         onClose={() => setshowSurveyModal(false)}
       />

@@ -6,6 +6,7 @@ interface ButtonProps {
   label: string;
   style?: SxProps<Theme>;
   onClick?: () => void;
+  disabled?: boolean;
   type?: "button" | "reset" | "submit";
   variant?: "contained" | "text" | "outlined";
 }
@@ -14,12 +15,14 @@ const Button: React.FC<ButtonProps> = ({
   label,
   style,
   onClick,
+  disabled = false,
   variant = "contained",
   type = "button",
 }) => {
   const defaultStyle = {
     fontWeight: 600,
     textTransform: "capitalize",
+    boxShadow: "0px 8px 15px rgba(0, 0, 0, 0.1)",
   };
 
   Object.assign(defaultStyle, style);
@@ -30,6 +33,7 @@ const Button: React.FC<ButtonProps> = ({
       variant={variant}
       onClick={onClick}
       sx={defaultStyle}
+      disabled={disabled}
     >
       {label}
     </MaterialButton>

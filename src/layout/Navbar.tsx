@@ -34,10 +34,6 @@ const styles = {
     flexDirection: "row",
     alignItems: "center",
   },
-  connectButton: {
-    marginRight: "32px",
-    boxShadow: "0px 8px 15px rgba(0, 0, 0, 0.1)",
-  },
 };
 
 const Navbar = () => {
@@ -85,7 +81,7 @@ const Navbar = () => {
           <Button
             label={isConnected ? "Disconnect" : "Connect to Metamask"}
             onClick={isConnected ? disconnect : handleConnect}
-            style={styles.connectButton}
+            style={{ marginRight: "32px" }}
           />
         </Box>
       </Box>
