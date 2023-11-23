@@ -12,7 +12,7 @@ interface HomeContainerProps {
 
 const styles = {
   wrapper: {
-    height: "88vh",
+    height: "76vh",
     width: "70%",
     backgroundImage: "url(/images/banner.png)",
     backgroundSize: "contain",
