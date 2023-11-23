@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Box } from "@mui/material";
 
 import Navbar from "./Navbar";
-import SwitchToGoerliModal from "../modals/SwitchToGoerliModal";
-import { useWeb3 } from "../providers/web3";
+import Footer from "./Footer";
 
 const styles = {
   wrapper: {
@@ -22,7 +21,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <Navbar />
         {children}
       </main>
-      <footer></footer>
+      <Footer />
     </Box>
   );
 };
