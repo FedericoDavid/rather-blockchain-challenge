@@ -22,7 +22,6 @@ interface IWeb3Context {
   quizBalance: string;
   isConnected: boolean;
   isGoerli: boolean;
-  isLoading: boolean;
   submit: (surveyId: number, answersIds: number[]) => Promise<boolean>;
   connectWallet: () => Promise<void>;
   disconnect: () => void;
@@ -36,7 +35,6 @@ const initialState: IWeb3Context = {
   quizBalance: "",
   isConnected: false,
   isGoerli: false,
-  isLoading: false,
   submit: async () => false,
   connectWallet: async () => {},
   disconnect: () => {},
@@ -57,7 +55,6 @@ const getEthersProvider = () => {
 export const Web3Provider = ({ children }: { children: ReactNode }) => {
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [isGoerli, setIsGoerli] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [provider, setProvider] = useState(null as BrowserProvider | null);
   const [signer, setSigner] = useState(null as JsonRpcSigner | null);
   const [address, setAddress] = useState<string>("");
@@ -124,8 +121,6 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
   ): Promise<boolean> => {
     if (!signer) return false;
 
-    setIsLoading(true);
-
     const quizContract = new ethers.Contract(quizAddress, quizAbi, signer);
 
     try {
@@ -134,13 +129,9 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
 
       if (tx.hash) await fetchQuizBalance();
 
-      setIsLoading(false);
-
       return true;
     } catch (error) {
       console.error("Error submitting answers: ", error);
-
-      setIsLoading(false);
 
       return false;
     }
@@ -179,7 +170,6 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
         quizBalance,
         isConnected,
         isGoerli,
-        isLoading,
         submit,
         connectWallet,
         disconnect,

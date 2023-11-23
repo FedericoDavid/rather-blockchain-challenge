@@ -76,10 +76,14 @@ const HomeContainer: React.FC<HomeContainerProps> = ({ survey }) => {
                 How to use:
               </Typography>
               <Typography variant="subtitle1">
-                Choose the correct options
+                {"\u2022 Choose the correct options"}
               </Typography>
-              <Typography variant="subtitle1">Send your answers</Typography>
-              <Typography variant="subtitle1">Earn $QUIZ 🤑</Typography>
+              <Typography variant="subtitle1">
+                {" \u2022 Send your answers"}
+              </Typography>
+              <Typography variant="subtitle1">
+                {"\u2022 Earn $QUIZ 🤑"}
+              </Typography>
             </CardContent>
           </Card>
           <Typography variant="h6" color="white" marginBottom="18px">

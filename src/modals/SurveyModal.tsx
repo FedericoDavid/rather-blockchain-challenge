@@ -47,12 +47,13 @@ const SurveyModal: React.FC<SurveyModalProps> = ({
   onClose,
 }) => {
   const [isError, setIsError] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [answers, setAnswers] = useState<SurveyAnswers>({});
   const [modalStep, setModalStep] = useState<ModalSteps>("form");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [timeLeft, setTimeLeft] = useState<number>(0);
 
-  const { isLoading, submit } = useWeb3();
+  const { submit } = useWeb3();
   const { control, handleSubmit, reset } = useForm();
 
   const question: SurveyQuestion = survey.questions[currentQuestionIndex];
@@ -99,6 +100,8 @@ const SurveyModal: React.FC<SurveyModalProps> = ({
   };
 
   const handleSendSurvey = async () => {
+    setIsLoading(true);
+
     const surveyId = survey.id;
     const answersIds = Object.values(answers).map((answer) =>
       parseInt(answer, 10)
@@ -114,6 +117,8 @@ const SurveyModal: React.FC<SurveyModalProps> = ({
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -128,7 +133,7 @@ const SurveyModal: React.FC<SurveyModalProps> = ({
       timer = setInterval(() => {
         setTimeLeft((prev) => prev - 1);
       }, 1000);
-    } else if (timeLeft === 0 && modalStep !== "final") {
+    } else if (timeLeft === 0 && modalStep === "form") {
       handleQuestionResponse();
     }
 
@@ -168,7 +173,7 @@ const SurveyModal: React.FC<SurveyModalProps> = ({
 
       {isError && (
         <Alert severity="error" sx={{ marginTop: "12px" }}>
-          Something went wrong. Please try again later.
+          Something went wrong: Please try again later
         </Alert>
       )}
     </Box>
@@ -200,8 +205,8 @@ const SurveyModal: React.FC<SurveyModalProps> = ({
         <Image
           src={question.image}
           alt="Question image"
-          width={180}
-          height={140}
+          width={200}
+          height={190}
           style={{ margin: "24px 0" }}
         />
       )}
