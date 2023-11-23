@@ -4,8 +4,14 @@ import { Box } from "@mui/material";
 
 import Layout from "../src/layout/Layout";
 import HomeContainer from "../src/containers/Home/HomeContainer";
+import { Survey } from "../src/types/survey";
+import surveyData from "../src/constants/survey.json";
 
-const Home: NextPage = () => {
+interface HomeProps {
+  dailySurvey: Survey;
+}
+
+const Home: NextPage<HomeProps> = ({ dailySurvey }) => {
   return (
     <Box sx={{ padding: "0 2rem" }}>
       <Head>
@@ -14,10 +20,18 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Layout>
-        <HomeContainer />
+        <HomeContainer survey={dailySurvey} />
       </Layout>
     </Box>
   );
 };
+
+export async function getServerSideProps() {
+  const dailySurvey = surveyData;
+
+  return {
+    props: { dailySurvey },
+  };
+}
 
 export default Home;
