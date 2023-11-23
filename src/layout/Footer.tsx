@@ -14,7 +14,7 @@ const styles = {
     padding: "18px 24px 8px 24px",
     backgroundColor: "transparent",
     zIndex: 99,
-    borderTop: "1px solid #c2c2c2",
+    borderTop: "1px solid #FFB87D",
     overflow: "hidden",
   },
   socialWrapper: {
