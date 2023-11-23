@@ -20,6 +20,14 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-end",
+    "@media (max-width: 600px)": {
+      flexDirection: "column-reverse",
+      alignItems: "center",
+      justifyContent: "flex-end",
+      height: "100%",
+      width: "100%",
+      backgroundSize: "contain",
+    },
   },
   cardWrapper: {
     backgroundColor: "rgba(255, 255, 255, 0.12)",

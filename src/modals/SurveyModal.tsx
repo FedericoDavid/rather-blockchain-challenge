@@ -109,7 +109,8 @@ const SurveyModal: React.FC<SurveyModalProps> = ({
 
     try {
       const success = await submit(surveyId, answersIds);
-      if (success) {
+
+      if (success === true) {
         setModalStep("congrats");
       } else {
         setIsError(true);
@@ -183,7 +184,7 @@ const SurveyModal: React.FC<SurveyModalProps> = ({
       <Typography variant="h4" mb="24px">
         Thank you for participating! 🎉
       </Typography>
-      <Typography variant="h5" mb="32px">
+      <Typography variant="h6" mb="32px">
         You will see the $Quiz earned in a few sec
       </Typography>
       <Button
